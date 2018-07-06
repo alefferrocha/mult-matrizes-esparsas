@@ -38,6 +38,44 @@ matriz_esparsa *carregaMatriz(char *nome){ //nome ou endereco do arquivo
     return mat;
 }
 
+int salvaMatriz(matriz_esparsa *mat){ //nome ou endereco do arquivo
+    int m= mat->m;
+	int n= mat->n;
+
+	 int i, j;
+    tipo_celula *apontaCelula;
+
+    if (!mat || !mat->m || !mat->n){
+        return 0;
+    }
+
+    FILE *arquivo;
+
+    arquivo = fopen("resultado.txt","w");
+    if (!arquivo){
+      arquivo = fopen("arquivo.txt","w");
+      fprintf(arquivo, "Erro ao abrir arquivo\n");
+      fclose(arquivo);
+      return 0;
+    }
+    apontaCelula = mat->inicio->abaixo;
+	fprintf(arquivo,"%d %d\n", m, n);
+    for (i = 1; i <= mat->m; i++){
+        for (j = 1; j <= mat->n; j++){
+            if (apontaCelula->direita->linha == i && apontaCelula->direita->coluna == j){
+                apontaCelula = apontaCelula->direita;
+                fprintf(arquivo, "%d %d %0.2f\n",apontaCelula->linha, apontaCelula->coluna, apontaCelula->valor);
+            }
+        }
+
+        apontaCelula = apontaCelula->direita->abaixo;
+    }
+
+    fclose(arquivo);
+
+    return 1;
+}
+
 matriz_esparsa *cria_matriz_esparsa(int m, int n){
     matriz_esparsa *mat;
 	mat = (matriz_esparsa *)malloc(sizeof(matriz_esparsa));

@@ -37,6 +37,8 @@ int iniciaCabecas(matriz_esparsa *mat);
 int insereCabecaLinha(matriz_esparsa *mat);
 int insereCabecaColuna(matriz_esparsa *mat);
 
+int salvaMatriz(matriz_esparsa *mat);
+
 int insereElemento(matriz_esparsa *mat, int linha, int coluna, float valor);
 
 matriz_esparsa *multiplicaMatriz(matriz_esparsa *matA, matriz_esparsa *matB);
