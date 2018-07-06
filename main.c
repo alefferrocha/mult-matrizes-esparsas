@@ -19,6 +19,7 @@ typedef tipo_matriz_esparsa matriz_esparsa;
 
 matriz_esparsa *carregaMatriz(char *nome);
 matriz_esparsa *cria_matriz_esparsa(int m, int n);
+int salvaMatriz(matriz_esparsa *mat);
 
 int iniciaCabecas(matriz_esparsa *mat);
 int insereCabecaLinha(matriz_esparsa *mat);
@@ -37,20 +38,46 @@ int main(){
 
     matriz_esparsa *matrizA = NULL;
     matriz_esparsa *matrizB = NULL;
-	matriz_esparsa *matrizC = NULL;
-    matrizA = carregaMatriz("matriz_A.txt");
-    printf("-> Matriz A\n");
+    matriz_esparsa *matrizC = NULL;
+    char nome_arquivo_matriz_A[100], nome_arquivo_matriz_B[100];
+	
+    puts("Digite o nome do arquivo da primeira matriz:");
+    puts("Exemplo: matriz_A.txt");
+    scanf("%[^\n]s", nome_arquivo_matriz_A);
+    setbuf(stdin, NULL);
+    
+    matrizA = carregaMatriz(nome_arquivo_matriz_A);
+    if (matrizA == NULL){
+    	return 0;
+	}
+    
+    puts("\nDigite o nome do arquivo da segunda matriz:");
+    puts("Exemplo: matriz_B.txt");
+    scanf("%[^\n]s", nome_arquivo_matriz_B);
+    setbuf(stdin, NULL);
+    
+    matrizB = carregaMatriz(nome_arquivo_matriz_B);
+    if (matrizB == NULL){
+    	return 0;
+	}
+    
+    printf("-----------------------------------------------------\n"); 
+    printf("\n\n-> Matriz A\n");
     imprimeMatriz(matrizA);
-
-    matrizB = carregaMatriz("matriz_B.txt");
+    printf("-----------------------------------------------------\n");
     printf("\n-> Matriz B\n");
     imprimeMatriz(matrizB);
-	
-	printf("\n-> Matriz C\n");
+    printf("-----------------------------------------------------\n");
+    printf("\nMultiplicando Matrizes...\n");
+    printf("\nmatriz_C = matriz_A * matriz_B\n\n");
     matrizC = multiplicaMatriz(matrizA, matrizB);
+    printf("-----------------------------------------------------\n");
+    printf("\n-> Matriz C\n");
     imprimeMatriz(matrizC);
-
-    return 0;
+    printf("-----------------------------------------------------\n");
+    salvaMatriz(matrizC);
+    printf("Resultado salvo no arquivo \" resultado.txt\"");
+    return 1;
 }
 
 matriz_esparsa *carregaMatriz(char *nome){ //nome ou endereco do arquivo
@@ -66,9 +93,7 @@ matriz_esparsa *carregaMatriz(char *nome){ //nome ou endereco do arquivo
 
     arquivo = fopen(nome,"r");
     if (!arquivo){
-      arquivo = fopen("arquivo.txt","w");
-      fprintf(arquivo, "Erro ao abrir arquivo\n");
-      fclose(arquivo);
+      printf( "Erro ao abrir arquivo >> %s <<\n",nome);
       return NULL;
     }
 
@@ -89,6 +114,49 @@ matriz_esparsa *carregaMatriz(char *nome){ //nome ou endereco do arquivo
     }
     fclose(arquivo);
     return mat;
+}
+
+int salvaMatriz(matriz_esparsa *mat){ //nome ou endereco do arquivo
+
+    char linha[TAM_BUFFER];
+
+    int m= mat->m;
+	int n= mat->n;
+	int l=0, c=0;
+    float valor=0.0;
+	
+	 int i, j;
+    tipo_celula *apontaCelula;
+
+    if (!mat || !mat->m || !mat->n){
+        return 0;
+    }
+	
+    FILE *arquivo;
+
+    arquivo = fopen("resultado.txt","w");
+    if (!arquivo){
+      arquivo = fopen("arquivo.txt","w");
+      fprintf(arquivo, "Erro ao abrir arquivo\n");
+      fclose(arquivo);
+      return 0;
+    }
+    apontaCelula = mat->inicio->abaixo;
+	fprintf(arquivo,"%d %d\n", m, n);
+    for (i = 1; i <= mat->m; i++){
+        for (j = 1; j <= mat->n; j++){
+            if (apontaCelula->direita->linha == i && apontaCelula->direita->coluna == j){
+                apontaCelula = apontaCelula->direita;
+                fprintf(arquivo, "%d %d %0.2f\n",apontaCelula->linha, apontaCelula->coluna, apontaCelula->valor);
+            }
+        }
+    
+        apontaCelula = apontaCelula->direita->abaixo;
+    }
+
+    fclose(arquivo);
+    
+    return 1;
 }
 
 matriz_esparsa *cria_matriz_esparsa(int m, int n){
@@ -308,7 +376,7 @@ matriz_esparsa *multiplicaMatriz(matriz_esparsa *matA, matriz_esparsa *matB){
         return NULL;
     }
 
-    matC = cria_matriz_esparsa(matA->m, matB->n); //C é formada pelo numero de linhas de A e de colunas de B
+    matC = cria_matriz_esparsa(matA->m, matB->n); //C Ã© formada pelo numero de linhas de A e de colunas de B
 
     for (i = 1; i <= matA->m; i++){
         for (j = 1; j <= matB->n; j++){
